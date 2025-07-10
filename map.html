@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>מפה עם נקודות מ </title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <button onclick="loadMarkers()">רענן נקודות</button>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([32.08, 34.78], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var markers = [];
+
+        function clearMarkers() {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+        }
+
+        function addMarker(lat, lng) {
+            var marker = L.marker([lat, lng]).addTo(map);
+            markers.push(marker);
+        }
+
+        function loadMarkers() {
+            clearMarkers();
+            // החלף SHEET_ID ב-ID של הגיליון שלך
+            var sheetUrl = "https://docs.google.com/spreadsheets/d/SHEET_ID/gviz/tq?tqx=out:csv";
+            fetch(sheetUrl)
+                .then(response => response.text())
+                .then(csv => {
+                    var rows = csv.trim().split('\n');
+                    rows.shift(); // הסר כותרת
+                    rows.forEach(row => {
+                        var [lat, lng] = row.split(',');
+                        addMarker(parseFloat(lat), parseFloat(lng));
+                    });
+                });
+        }
+
+        // טען נקודות בהתחלה
+        loadMarkers();
+    </script>
+</body>
+</html>
